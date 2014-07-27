@@ -19,6 +19,7 @@ rm(list = ls())
 
 
 library(matrixStats)
+library(stringr)
 
 ########## PART ONE ##########
 # 1. Merges the training and the test sets to create one data set.
@@ -63,7 +64,7 @@ smallData <- cbind(meanData, stdData)
 dim(smallData)
 summary(smallData)
 print("The above was a summary of the mean and standard deviation measurments")
-rm(meanData);rm(stdData); rm(smallData); rm(meanCols); rm(stdCols); rm(shortLabels)
+rm(meanData);rm(stdData); rm(smallData); rm(meanCols); rm(stdCols)
 
 ########## PART THREE ##########
 # 3. Uses descriptive activity names to name the activities in the data set
@@ -73,19 +74,19 @@ act_labels <- c('WALKING','WALKING_UPSTAIRS','WALKING_DOWNSTAIRS','SITTING','STA
 act_list <- list(activities$V1)
 act_list <- as.integer(act_list[[1]])
 act_fac <- factor(act_list, labels = act_labels)
-activities <- as.data.frame(act_fac)
+acts <- as.data.frame(act_fac)
 rm(act_list)
-data <- cbind(act_fac, data)
+data <- cbind(acts, data)
 cat(" added the activity labels to the first column of the data\n")
 data <- cbind(subjects, data)
 cat(" added the subjects to the first column of the data\n")
 cat(" Dimensions of data are now [", dim(data), "] after adding subjects and activities.\n")
 #cat(" Activity labels: ", act_labels, "\n")
-rm(act_labels)
+
 dataLabels <- c('subjects', 'activities', dataLabels)
 #cat("labels data frame:\n")
-#print(col_labels)
-#cat("\n------------------------------\n")
+#print(dataLabels)
+rm(act_labels);rm(act_fac); rm(act_list); rm(acts); rm(colLabels)
 
 ########## PART FOUR ##########
 # 4. Appropriately labels the data set with descriptive variable names.
@@ -97,7 +98,9 @@ dataLabels <-str_replace_all(dataLabels, "sma", "signal-magnitudearea")
 dataLabels <-str_replace_all(dataLabels, "iqr", "interquartilerange")
 dataLabels <-str_replace_all(dataLabels, "arC", "autorregressc")
 dataLabels <-str_replace_all(dataLabels, "[()]", "")
-dataLabels <-str_replace_all(dataLabels, ",", "")
+dataLabels <-str_replace_all(dataLabels, "-", "")
+dataLabels <-str_replace_all(dataLabels, ",", "-")
+dataLabels <-str_replace_all(dataLabels, "BodyBody", "BBody")
 #dataLabels <-str_replace_all(dataLabels, "[a-zA-Z+-]", "")
 names(data) <- dataLabels
 #rm(meanData);rm(stdData); rm(smallData); rm(meanCols); rm(stdCols); rm(shortLabels)
@@ -111,8 +114,9 @@ data$subjects <- factor(data$subjects)
 data$activities <- factor(data$activities)
 trimdata<- data[, 3:563]
 meandata <- aggregate(trimdata[, ], by = list(Subjects = data$subjects, Activities = data$activities), mean, simplify = TRUE)
-write.table("MeanData.txt")
-write.table(meandata, file = "MeanData.txt", append = FALSE, quote = TRUE, sep = " ", eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = TRUE, qmethod = c("escape", "double"), fileEncoding = "")
-getwd()
-print("The tidy data file name 'MeanData.txt' has been created in your workspace")
+write.table(meandata, file = "tidyMeansData.txt", append = FALSE, quote = TRUE, sep = " ", eol = "\n", na = "NA", dec = ".", row.names = FALSE, col.names = TRUE, qmethod = c("escape", "double"), fileEncoding = "")
+
+######## Clean Global Environment ########
+rm(list = ls())
+print("The tidy data file name 'tidyMeansData.txt' has been created in your workspace")
 
